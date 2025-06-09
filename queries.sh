@@ -1,62 +1,41 @@
-#!/bin/bash
+#! /bin/bash
 
-PSQL="psql --username=freecodecamp --dbname=worldcup -t --no-align -c"
+PSQL="psql --username=freecodecamp --dbname=worldcup --no-align --tuples-only -c"
 
-# 1
-echo "Total number of goals in all games from winning teams:"
+# Do not change code above this line. Use the PSQL variable above to query your database.
+
+echo -e "\nTotal number of goals in all games from winning teams:"
 echo "$($PSQL "SELECT SUM(winner_goals) FROM games")"
-echo ""
 
-# 2
-echo "Total number of goals in all games from both teams combined:"
+echo -e "\nTotal number of goals in all games from both teams combined:"
 echo "$($PSQL "SELECT SUM(winner_goals + opponent_goals) FROM games")"
-echo ""
 
-# 3
-echo "Average number of goals in all games from the winning teams:"
+echo -e "\nAverage number of goals in all games from the winning teams:"
 echo "$($PSQL "SELECT AVG(winner_goals) FROM games")"
-echo ""
 
-# 4
-echo "Average number of goals in all games from the winning teams rounded to two decimal places:"
-echo "$($PSQL "SELECT ROUND(AVG(winner_goals), 2) FROM games")"
-echo ""
+echo -e "\nAverage number of goals in all games from the winning teams rounded to two decimal places:"
+echo "$($PSQL "SELECT ROUND(AVG(winner_goals),2) FROM games")"
 
-# 5
-echo "Average number of goals in all games from both teams:"
-echo "$($PSQL "SELECT AVG(winner_goals + opponent_goals) FROM games")"
-echo ""
+echo -e "\nAverage number of goals in all games from both teams:"
+echo "$($PSQL "SELECT AVG(winner_goals + opponent_goals) from games")"
 
-# 6
-echo "Most goals scored in a single game by one team:"
-echo "$($PSQL "SELECT MAX(GREATEST(winner_goals, opponent_goals)) FROM games")"
-echo ""
+echo -e "\nMost goals scored in a single game by one team:"
+echo "$($PSQL "SELECT MAX(winner_goals) AS "most_goals" FROM games")"
 
-# 7
-echo "Number of games where the winning team scored more than two goals:"
-echo "$($PSQL "SELECT COUNT(*) FROM games WHERE winner_goals > 2")"
-echo ""
+echo -e "\nNumber of games where the winning team scored more than two goals:"
+echo $($PSQL "SELECT COUNT(*) FROM games WHERE winner_goals > 2")
 
-# 8
-echo "Winner of the 2018 tournament team name:"
-echo "$($PSQL "SELECT t.name FROM games g JOIN teams t ON g.winner_id = t.team_id WHERE g.round='Final' AND g.year=2018")"
-echo ""
+echo -e "\nWinner of the 2018 tournament team name:"
+echo $($PSQL "SELECT t.name FROM teams t LEFT JOIN games g ON t.team_id=g.winner_id WHERE g.year=2018 AND round='Final'")
 
-# 9
-echo "List of teams who played in the 2014 'Eighth-Final' round:"
-echo "$($PSQL "SELECT t.name FROM games g JOIN teams t ON (g.winner_id = t.team_id OR g.opponent_id = t.team_id) WHERE g.year=2014 AND g.round='Eighth-Final' ORDER BY t.name")"
-echo ""
+echo -e "\nList of teams who played in the 2014 'Eighth-Final' round:"
+echo $($PSQL "SELECT t.name FROM games g FULL JOIN teams t ON g.winner_id=t.team_id OR g.opponent_id=t.team_id WHERE (g.year='2014' AND g.round='Eighth-Final') ORDER BY t.name")
 
-# 10
-echo "List of unique winning team names in the whole data set:"
-echo "$($PSQL "SELECT DISTINCT t.name FROM games g JOIN teams t ON g.winner_id = t.team_id ORDER BY t.name")"
-echo ""
+echo -e "\nList of unique winning team names in the whole data set:"
+echo $($PSQL "SELECT DISTINCT(t.name) FROM games g LEFT JOIN teams t ON g.winner_id=t.team_id ORDER BY t.name")
 
-# 11
-echo "Year and team name of all the champions:"
-echo "$($PSQL "SELECT g.year || '|' || t.name FROM games g JOIN teams t ON g.winner_id = t.team_id WHERE g.round='Final' ORDER BY g.year")"
-echo ""
+echo -e "\nYear and team name of all the champions:"
+echo $($PSQL "SELECT g.year, t.name FROM games g LEFT JOIN teams t ON g.winner_id=t.team_id WHERE round='Final' ORDER BY g.year")
 
-# 12
-echo "List of teams that start with 'Co':"
-echo "$($PSQL "SELECT name FROM teams WHERE name LIKE 'Co%' ORDER BY name")"
+echo -e "\nList of teams that start with 'Co':"
+echo $($PSQL "SELECT name FROM teams WHERE name LIKE 'Co%'")
